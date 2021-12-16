@@ -64,13 +64,13 @@ public class UIManager : MonoBehaviour
     }
     public void towerSelected()
     {
-        DataFromMenuToLevel.instance.playerSelectObjectType = 0;
+
         ClientSend.ChosePlayerType(0);
         afterServerResponse.SetActive(false);
     }
     public void minionSelected()
     {
-        DataFromMenuToLevel.instance.playerSelectObjectType = 1;
+
         ClientSend.ChosePlayerType(1);
         afterServerResponse.SetActive(false);
     }

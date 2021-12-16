@@ -9,7 +9,8 @@ public class Client : MonoBehaviour
 {
 
     public static Client instance;
-    public static int dataBufferSize = 4096;
+    //maximum size for ethernet
+    public static int dataBufferSize = 1500;
 
     public string ip = "127.0.0.1";
     public int port = 5000;

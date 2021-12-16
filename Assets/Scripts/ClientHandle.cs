@@ -43,6 +43,18 @@ public class ClientHandle : MonoBehaviour
     {
         //go to next scene
         // fill in data into the temp data storage object to be passed into the level
+        DataFromMenuToLevel dataStorage = FindObjectOfType<DataFromMenuToLevel>();
+        dataStorage.playerSelectObjectType = packet.ReadInt();
+        int numPlayers = packet.ReadInt();
+        dataStorage.instantiateArrays(numPlayers);
+        for (int i = 0; i < numPlayers; i++)
+        {
+            dataStorage.types[i] = packet.ReadInt();
+            dataStorage.ids[i] = packet.ReadInt();
+            dataStorage.positions[i]= new Vector2(packet.ReadFloat(), packet.ReadFloat());
+            dataStorage.zRotations[i] = packet.ReadFloat();
+        }
+
         Debug.Log("got data from server, loading level");
         SceneManager.LoadScene(1);
     }

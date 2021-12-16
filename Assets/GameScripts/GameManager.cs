@@ -14,7 +14,8 @@ public class GameManager : MonoBehaviour
     bool playerSelected;
     public int minionScore;
     public int towerScore;
-
+    public bool playerIsTower;
+    public bool playerPlacedTower;
     public static GameManager Instance { get; private set; }
 
     void Awake()
@@ -32,31 +33,76 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        playerPlacedTower = false;
         player = null;
         playerSelected = false;
         minions = new List<GameObject>();
         towers = new List<GameObject>();
         tileSet = GameObject.Find("Tiles");
+
         PathStart = tileSet.GetComponent<CustomTileMap>().startTiles[0].transform.position;
 
         minionScore = 0;
+
+        DataFromMenuToLevel instantiateLevelData = FindObjectOfType<DataFromMenuToLevel>();
+
+        if (instantiateLevelData.playerSelectObjectType == 0)
+        {
+            Debug.Log("player type is: tower");
+            playerIsTower = true;
+            
+        } else if (instantiateLevelData.playerSelectObjectType == 1)
+        {
+            Debug.Log("player type is: minion");
+            spawnAsMinion();
+            playerIsTower = false;
+        }
+
+        for (int i = 0; i < instantiateLevelData.numPlayers; i++)
+        {
+            GameObject newObject;
+            if (instantiateLevelData.types[i] == 0)
+            {
+                newObject = addTower();
+            } else if (instantiateLevelData.types[i] == 1)
+            {
+                newObject = addMinion();
+            }
+            else
+            {                
+                newObject = new GameObject();
+            }
+            newObject.transform.position = new Vector3(instantiateLevelData.positions[i].x, instantiateLevelData.positions[i].y, newObject.transform.position.z);
+            newObject.transform.rotation = Quaternion.Euler(0, 0, instantiateLevelData.zRotations[i]);
+            newObject.GetComponent<Controllable>().setId(instantiateLevelData.ids[i]);
+            
+        }
 
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (playerIsTower)
+        {
+            if (!playerPlacedTower)
+            {
+                if (Input.GetMouseButtonDown(0))
+                {
+                    spawnAsTower();
+                }
+            }
+        }
 
         UIManager.instance.minionScoreText.text = minionScore.ToString();
         UIManager.instance.TowerScoreText.text = towerScore.ToString();
-
+        /*
         if (!playerSelected)
         {
             if (Input.GetMouseButtonDown(0))
             {
 
                 spawnTower();
-                spawnMinion();
             }
             if (Input.GetMouseButtonDown(1))
             {
@@ -65,6 +111,7 @@ public class GameManager : MonoBehaviour
 
             }
         }
+        */
 
         if (Camera.main != null && player != null) {
             Camera.main.transform.position = new Vector3(player.transform.position.x, player.transform.position.y, Camera.main.transform.position.z);
@@ -90,7 +137,7 @@ public class GameManager : MonoBehaviour
         return newTower;
     }
 
-    public void spawnTower()
+    public void spawnAsTower()
     {
 
         Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
@@ -105,12 +152,13 @@ public class GameManager : MonoBehaviour
                 player = tower;
                 tower.transform.position = hit.transform.position;
                 setPlayer(tower);
+                playerPlacedTower = true;
             }
 
         }
     }
 
-    public void spawnMinion()
+    public void spawnAsMinion()
     {
         GameObject minion = addMinion();
         setPlayer(minion);

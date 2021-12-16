@@ -5,6 +5,11 @@ using UnityEngine;
 public class DataFromMenuToLevel : MonoBehaviour
 {
     public int playerSelectObjectType;
+    public int numPlayers;
+    public Vector2[] positions;
+    public int[] ids;
+    public int[] types;
+    public float[] zRotations;
 
     public static DataFromMenuToLevel instance;
     // Start is called before the first frame update
@@ -27,9 +32,13 @@ public class DataFromMenuToLevel : MonoBehaviour
         
     }
 
-    // Update is called once per frame
-    void Update()
+    public void instantiateArrays(int size)
     {
-        
+        numPlayers = size;
+        positions = new Vector2[size]; 
+        ids = new int[size];
+        types = new int[size];
+        zRotations = new float[size];
     }
+
 }
