@@ -911,7 +911,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 257a4cfe9a1573c4cb02f0e1a95ebe45, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerSelectObjectType: 0
+  numPlayers: 0
+  positions: []
+  ids: 
+  types: 
+  zRotations: []
+  serverGameTime: 0
 --- !u!4 &1934069556
 Transform:
   m_ObjectHideFlags: 0
@@ -1509,6 +1514,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 963235c7058194546b18a4b4911628b2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  tileSetPrefab: {fileID: 3916811108540248820, guid: 7609bd76e5431fb4d82bf02ee63499a4,
+    type: 3}
   startMenu: {fileID: 4615028082637571149}
   afterServerResponse: {fileID: 1662804882}
   escMenu: {fileID: 2022896015}
@@ -1517,6 +1524,7 @@ MonoBehaviour:
   serverMessageText: {fileID: 746918736}
   TowerScoreText: {fileID: 0}
   minionScoreText: {fileID: 0}
+  gameTimeText: {fileID: 0}
 --- !u!223 &4615028082105503498
 Canvas:
   m_ObjectHideFlags: 0

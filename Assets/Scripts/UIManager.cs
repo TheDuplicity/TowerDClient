@@ -6,7 +6,11 @@ using UnityEngine.UI;
 public class UIManager : MonoBehaviour
 {
     private bool escMenuOpen;
+    private bool selectingTower;
     public static UIManager instance;
+
+    public GameObject tileSetPrefab;
+    private GameObject tileSetInstance;
 
     public GameObject startMenu;
     public GameObject afterServerResponse;
@@ -17,6 +21,7 @@ public class UIManager : MonoBehaviour
 
     public Text TowerScoreText;
     public Text minionScoreText;
+    public Text gameTimeText;
 
     private void Awake()
     {
@@ -29,6 +34,8 @@ public class UIManager : MonoBehaviour
             Debug.Log("instance already exists, destroying object.");
             Destroy(this);
         }
+        selectingTower = false;
+        escMenuOpen = false;
     }
 
     private void Update()
@@ -37,6 +44,15 @@ public class UIManager : MonoBehaviour
         {
             escMenuOpen = !escMenuOpen;
             escMenu.SetActive(escMenuOpen);
+        }
+
+        if (selectingTower)
+        {
+            if (Input.GetMouseButtonDown(0))
+            {
+                //send mouse pos and tower type to server to try and spawn
+                ClientSend.AttemptTowerCreation(Input.mousePosition);
+            }
         }
     }
 
@@ -65,13 +81,15 @@ public class UIManager : MonoBehaviour
     public void towerSelected()
     {
 
-        ClientSend.ChosePlayerType(0);
+      
         afterServerResponse.SetActive(false);
+        tileSetInstance = Instantiate(tileSetPrefab);
+        selectingTower = true;
     }
     public void minionSelected()
     {
 
-        ClientSend.ChosePlayerType(1);
+        ClientSend.AttemptMinionCreation();
         afterServerResponse.SetActive(false);
     }
 }

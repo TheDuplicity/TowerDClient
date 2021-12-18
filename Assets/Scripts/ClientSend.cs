@@ -30,28 +30,40 @@ public class ClientSend : MonoBehaviour
         }
     }
 
-    public static void ChosePlayerType(int playerType)
+    public static void AttemptMinionCreation()
     {
-        // 0 is tower, 1 is minion
-        using (Packet packet = new Packet((int)ClientPackets.chosePlayerType))
+  
+        using (Packet packet = new Packet((int)ClientPackets.attemptMinionCreation))
         {
-            packet.Write(playerType);
+            packet.Write("selected minion");
+            SendTCPData(packet);
+        }
+    }
+    //dont make the object, just tell the server the type and it will create and return the details to you
+    public static void AttemptTowerCreation(Vector3 towerMousePos)
+    {
+        
+        
+        using (Packet packet = new Packet((int)ClientPackets.attemptTowerCreation))
+        {
+            packet.Write(towerMousePos.x);
+            packet.Write(towerMousePos.y);
+            packet.Write(towerMousePos.z);
+            SendTCPData(packet);
+        }
+    }
+    public static void TimePing(int timerId)
+    {
+        NetworkManager.instance.serverTimeoutTimer = 0;
+        //just need the id
+        Debug.Log($"sending time ping to server on timer of id{timerId}");
+        using (Packet packet = new Packet((int)ClientPackets.timePing))
+        {
+            packet.Write(timerId);
             SendTCPData(packet);
         }
     }
 
-    public static void TowerCreated(GameObject tower)
-    {
-        Tower towerDetails = tower.GetComponent<Tower>();
-        // 0 is tower, 1 is minion
-        using (Packet packet = new Packet((int)ClientPackets.chosePlayerType))
-        {
-            //
-            //
-            //
-            SendTCPData(packet);
-        }
-    }
 
     #endregion
 }

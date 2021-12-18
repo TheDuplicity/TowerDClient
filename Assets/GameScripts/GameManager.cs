@@ -9,13 +9,15 @@ public class GameManager : MonoBehaviour
     private GameObject tileSet;
      public GameObject minionPrefab;
      public GameObject towerPrefab;
+
     GameObject player;
     Vector3 PathStart;
-    bool playerSelected;
+
     public int minionScore;
     public int towerScore;
-    public bool playerIsTower;
-    public bool playerPlacedTower;
+
+
+    public float gameTime { get; private set; }
     public static GameManager Instance { get; private set; }
 
     void Awake()
@@ -27,15 +29,15 @@ public class GameManager : MonoBehaviour
         {
             Destroy(this);
         }
-        DontDestroyOnLoad(gameObject);
+        
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        playerPlacedTower = false;
+
         player = null;
-        playerSelected = false;
+
         minions = new List<GameObject>();
         towers = new List<GameObject>();
         tileSet = GameObject.Find("Tiles");
@@ -46,31 +48,32 @@ public class GameManager : MonoBehaviour
 
         DataFromMenuToLevel instantiateLevelData = FindObjectOfType<DataFromMenuToLevel>();
 
-        if (instantiateLevelData.playerSelectObjectType == 0)
-        {
-            Debug.Log("player type is: tower");
-            playerIsTower = true;
-            
-        } else if (instantiateLevelData.playerSelectObjectType == 1)
-        {
-            Debug.Log("player type is: minion");
-            spawnAsMinion();
-            playerIsTower = false;
-        }
+        gameTime = instantiateLevelData.serverGameTime + NetworkManager.instance.calculatenetWorkAverageHalfTripTime();
+
+
+
 
         for (int i = 0; i < instantiateLevelData.numPlayers; i++)
         {
             GameObject newObject;
+
             if (instantiateLevelData.types[i] == 0)
             {
                 newObject = addTower();
+
             } else if (instantiateLevelData.types[i] == 1)
             {
                 newObject = addMinion();
+
             }
             else
             {                
                 newObject = new GameObject();
+            }
+            //if the id of this player in the game is our id the this is us
+            if (instantiateLevelData.ids[i] == Client.instance.myId)
+            {
+                setPlayer(newObject);
             }
             newObject.transform.position = new Vector3(instantiateLevelData.positions[i].x, instantiateLevelData.positions[i].y, newObject.transform.position.z);
             newObject.transform.rotation = Quaternion.Euler(0, 0, instantiateLevelData.zRotations[i]);
@@ -83,35 +86,13 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (playerIsTower)
-        {
-            if (!playerPlacedTower)
-            {
-                if (Input.GetMouseButtonDown(0))
-                {
-                    spawnAsTower();
-                }
-            }
-        }
+
+        gameTime += Time.deltaTime;
 
         UIManager.instance.minionScoreText.text = minionScore.ToString();
         UIManager.instance.TowerScoreText.text = towerScore.ToString();
-        /*
-        if (!playerSelected)
-        {
-            if (Input.GetMouseButtonDown(0))
-            {
+        UIManager.instance.gameTimeText.text = gameTime.ToString(".0#");
 
-                spawnTower();
-            }
-            if (Input.GetMouseButtonDown(1))
-            {
-
-                spawnMinion();
-
-            }
-        }
-        */
 
         if (Camera.main != null && player != null) {
             Camera.main.transform.position = new Vector3(player.transform.position.x, player.transform.position.y, Camera.main.transform.position.z);
@@ -119,14 +100,13 @@ public class GameManager : MonoBehaviour
     }
     private void setPlayer(GameObject newPlayer)
     {
-        playerSelected = true;
+
         player = newPlayer;
         player.GetComponent<Controllable>().playerControlled = true;
     }
     public GameObject addMinion()
     {
         GameObject newMinion = Instantiate(minionPrefab);
-        newMinion.transform.position = PathStart;
         minions.Add(newMinion);
         return newMinion;
     }
@@ -135,27 +115,6 @@ public class GameManager : MonoBehaviour
         GameObject newTower = Instantiate(towerPrefab);
         towers.Add(newTower);
         return newTower;
-    }
-
-    public void spawnAsTower()
-    {
-
-        Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        RaycastHit2D hit;
-        hit = Physics2D.Raycast(mousePos, new Vector3(0, 0, 1), 100);
-        if (hit) {
-            GameObject hitObj = hit.transform.gameObject;
-            if (hitObj.tag == "TowerTile")
-            {
-                Debug.Log("spawning tower");
-                GameObject tower = addTower();
-                player = tower;
-                tower.transform.position = hit.transform.position;
-                setPlayer(tower);
-                playerPlacedTower = true;
-            }
-
-        }
     }
 
     public void spawnAsMinion()

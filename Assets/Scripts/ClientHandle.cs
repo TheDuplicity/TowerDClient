@@ -16,6 +16,9 @@ public class ClientHandle : MonoBehaviour
         NetworkManager.instance.serverTimeoutTimer = 0;
         //send welcome received packet
         ClientSend.WelcomeReceived();
+        //send 3 messages and time how long they take to come back and store in the network manager instance
+        NetworkManager.instance.pingServerForRoundTripTime(3);
+        
         //this just here to see the message getting received back
         //
         //
@@ -44,7 +47,7 @@ public class ClientHandle : MonoBehaviour
         //go to next scene
         // fill in data into the temp data storage object to be passed into the level
         DataFromMenuToLevel dataStorage = FindObjectOfType<DataFromMenuToLevel>();
-        dataStorage.playerSelectObjectType = packet.ReadInt();
+        dataStorage.serverGameTime = packet.ReadFloat();
         int numPlayers = packet.ReadInt();
         dataStorage.instantiateArrays(numPlayers);
         for (int i = 0; i < numPlayers; i++)
@@ -57,6 +60,15 @@ public class ClientHandle : MonoBehaviour
 
         Debug.Log("got data from server, loading level");
         SceneManager.LoadScene(1);
+    }
+
+    public static void TimePing(Packet packet)
+    {
+
+        int timerID = packet.ReadInt();
+        Debug.Log($"received ping for timer id: {timerID}");
+        //received response, stop timer and store it in network managers array
+        NetworkManager.instance.addTimeToRoundTripTimesList(timerID);
     }
 
 }

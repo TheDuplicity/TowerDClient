@@ -2,26 +2,27 @@
 using System.Collections.Generic;
 using System.Text;
 
+/// <summary>Sent from server to client.</summary>
+public enum ServerPackets
+{
+    welcome = 1,
+    serverAlive = 2,
+    joinGameData,
+    timePing
+}
 
-    /// <summary>Sent from server to client.</summary>
-    public enum ServerPackets
-    {
-        welcome = 1,
-        serverAlive = 2,
-        joinGameData
-    }
+/// <summary>Sent from client to server.</summary>
+public enum ClientPackets
+{
+    welcomeReceived = 1,
+    clientAlive = 2,
+    attemptMinionCreation,
+    attemptTowerCreation,
+    timePing
 
-    /// <summary>Sent from client to server.</summary>
-    public enum ClientPackets
-    {
-        welcomeReceived = 1,
-        clientAlive = 2,
-        chosePlayerType,
-        towerCreated
+}
 
-    }
-
-    public class Packet : IDisposable
+public class Packet : IDisposable
     {
         private List<byte> buffer;
         private byte[] readableBuffer;

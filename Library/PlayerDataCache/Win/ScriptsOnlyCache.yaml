@@ -16,6 +16,8 @@ ScriptsOnlyBuild:
     - UnityEditor.U2D.Animation.BoneGizmo
     Unity.2D.Tilemap.Editor.dll:
     - UnityEditor.Tilemaps.GridPaintingState
+    - UnityEditor.Tilemaps.GridPaletteBrushes
+    - UnityEditor.Tilemaps.GridPalettes
     - UnityEditor.Tilemaps.SceneViewGridManager
     - UnityEditor.Tilemaps.TileDragAndDropManager
     Unity.Rider.Editor.dll:
@@ -114,6 +116,8 @@ ScriptsOnlyBuild:
       Script: {instanceID: 0}
     - Class: 48
       Script: {instanceID: 0}
+    - Class: 61
+      Script: {instanceID: 0}
     - Class: 81
       Script: {instanceID: 0}
     - Class: 104
@@ -142,6 +146,8 @@ ScriptsOnlyBuild:
       Script: {instanceID: 13738}
     - Class: 114
       Script: {instanceID: 13772}
+    - Class: 114
+      Script: {instanceID: 14148}
     - Class: 114
       Script: {instanceID: 14326}
     - Class: 114
@@ -473,7 +479,7 @@ ScriptsOnlyBuild:
     className: TMP_SpriteAnimator
   - hash:
       serializedVersion: 2
-      Hash: 6d534e84ef528b9a5f9146779303526e
+      Hash: 23de53d9557ffc2553902d3fd5d15831
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: UIManager
@@ -515,7 +521,7 @@ ScriptsOnlyBuild:
     className: VerticalLayoutGroup
   - hash:
       serializedVersion: 2
-      Hash: 156cb8f5c8e8a595a19937f8d37f08b1
+      Hash: 921a0a4d20edcfe2a4617c8c491ff3cf
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: GameManager
@@ -677,7 +683,7 @@ ScriptsOnlyBuild:
     className: TMP_SubMesh
   - hash:
       serializedVersion: 2
-      Hash: 95be33a0651e33b22a34e8a6cda5a695
+      Hash: 2f2e5d43a3da84ad4f3cb4f2e46a5ae6
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: DataFromMenuToLevel

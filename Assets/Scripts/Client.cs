@@ -194,6 +194,7 @@ public class Client : MonoBehaviour
                     using (Packet packet = new Packet(packetBytes))
                     {
                         int packetId = packet.ReadInt();
+                        
                         packetHandlers[packetId](packet);
                     }
                 });
@@ -228,7 +229,8 @@ public class Client : MonoBehaviour
         {
             { (int)ServerPackets.welcome, ClientHandle.Welcome},
             { (int)ServerPackets.serverAlive, ClientHandle.ServerAlive},
-            { (int)ServerPackets.joinGameData, ClientHandle.JoinGameData}
+            { (int)ServerPackets.joinGameData, ClientHandle.JoinGameData},
+            { (int)ServerPackets.timePing, ClientHandle.TimePing}
         };
         Debug.Log("initialised packets");
     }

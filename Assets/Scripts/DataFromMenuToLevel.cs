@@ -4,12 +4,12 @@ using UnityEngine;
 
 public class DataFromMenuToLevel : MonoBehaviour
 {
-    public int playerSelectObjectType;
     public int numPlayers;
     public Vector2[] positions;
     public int[] ids;
     public int[] types;
     public float[] zRotations;
+    public float serverGameTime;
 
     public static DataFromMenuToLevel instance;
     // Start is called before the first frame update
