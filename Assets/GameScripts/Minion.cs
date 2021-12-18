@@ -113,8 +113,8 @@ public class Minion : Controllable
         if (colliderObj.tag == "FinishTile")
         {
             //increment score
-            GameManager.Instance.minionScore ++;
-            die();
+            //GameManager.Instance.minionScore ++;
+           // die();
         }
     }
 
@@ -125,18 +125,12 @@ public class Minion : Controllable
         health -= damage;
         if (health <= 0)
         {
-            GameManager.Instance.towerScore++;
-            die();
+           // GameManager.Instance.towerScore++;
+           // die();
         }
     }
     public void die()
     {
-        Debug.Log("death");
-        if (playerControlled) {
-            Debug.Log("enabled button");
-            UIManager.instance.respawnButton.gameObject.SetActive(true);
-
-        }
         Destroy(gameObject);
     }
 

@@ -30,17 +30,17 @@ public class ClientSend : MonoBehaviour
         }
     }
 
-    public static void AttemptMinionCreation()
+    public static void AttemptMinionCreation(bool inGame)
     {
   
         using (Packet packet = new Packet((int)ClientPackets.attemptMinionCreation))
         {
-            packet.Write("selected minion");
+            packet.Write(inGame);
             SendTCPData(packet);
         }
     }
     //dont make the object, just tell the server the type and it will create and return the details to you
-    public static void AttemptTowerCreation(Vector3 towerMousePos)
+    public static void AttemptTowerCreation(Vector3 towerMousePos, bool inGame)
     {
         
         
@@ -49,6 +49,8 @@ public class ClientSend : MonoBehaviour
             packet.Write(towerMousePos.x);
             packet.Write(towerMousePos.y);
             packet.Write(towerMousePos.z);
+            packet.Write(inGame);
+
             SendTCPData(packet);
         }
     }
@@ -75,6 +77,18 @@ public class ClientSend : MonoBehaviour
             SendTCPData(packet);
         }
     }
+
+    public static void ShotBullet()
+    {
+
+
+        using (Packet packet = new Packet((int)ClientPackets.shotBullet))
+        {
+            packet.Write("bullet shot");
+            SendTCPData(packet);
+        }
+    }
+
 
     public static void TimePing(int timerId)
     {

@@ -73,30 +73,8 @@ public class GameManager : MonoBehaviour
 
         for (int i = 0; i < instantiateLevelData.numPlayers; i++)
         {
-            GameObject newObject;
+            GameObject newObject = CreateNewObject(instantiateLevelData.ids[i], instantiateLevelData.types[i], instantiateLevelData.positions[i], instantiateLevelData.zRotations[i]);
 
-            if (instantiateLevelData.types[i] == 0)
-            {
-                newObject = addTower();
-
-            } else if (instantiateLevelData.types[i] == 1)
-            {
-                newObject = addMinion();
-
-            }
-            else
-            {                
-                newObject = new GameObject();
-            }
-            //if the id of this player in the game is our id the this is us
-            if (instantiateLevelData.ids[i] == Client.instance.myId)
-            {
-                setPlayer(newObject);
-            }
-            newObject.GetComponent<Controllable>().setType(instantiateLevelData.types[i]);
-            newObject.transform.position = new Vector3(instantiateLevelData.positions[i].x, instantiateLevelData.positions[i].y, newObject.transform.position.z);
-            newObject.transform.rotation = Quaternion.Euler(0, 0, instantiateLevelData.zRotations[i]);
-            newObject.GetComponent<Controllable>().setId(instantiateLevelData.ids[i]);
             
         }
 
@@ -107,11 +85,12 @@ public class GameManager : MonoBehaviour
     {
         sendUpdateTimer += Time.deltaTime;
         //send update every 50 ms
-        if (sendUpdateTimer > 0.05)
+        if (sendUpdateTimer > NetworkManager.instance.messageSendRateLimit)
         {
             sendUpdateTimer = 0;
-            sendPlayerUpdate();
-
+            if (player != null) {
+                sendPlayerUpdate();
+            }
         }
         gameTime += Time.deltaTime;
 
@@ -123,6 +102,91 @@ public class GameManager : MonoBehaviour
         if (Camera.main != null && player != null) {
             Camera.main.transform.position = new Vector3(player.transform.position.x, player.transform.position.y, Camera.main.transform.position.z);
         }
+    }
+
+    public void KillObject(int objectId)
+    {
+        GameObject killObject = returnObjectWithThisClientId(objectId);
+        int objId = killObject.GetComponent<Controllable>().getId();
+        if (player != null) {
+            if (objId == player.GetComponent<Controllable>().getId())
+            {
+                player = null;
+
+                UIManager.instance.respawnButton.gameObject.SetActive(true);
+            }
+        }
+        int objType = killObject.GetComponent<Controllable>().getType();
+
+        if (objType == 0)
+        {
+            for (int i = 0; i < towers.Count; i++) { 
+                if (towers[i].GetComponent<Controllable>().getId() == objId)
+                {
+                    killObject.GetComponent<Tower>().die();
+                    towers.RemoveAt(i);
+                    //kick from game if tower dies
+                    //
+                    //
+                    break;
+                }
+        
+            }
+        } else if( objType == 1){
+            for (int i = 0; i < minions.Count; i++)
+            {
+                if (minions[i].GetComponent<Controllable>().getId() == objId)
+                {
+                    killObject.GetComponent<Minion>().die();
+                    minions.RemoveAt(i);
+                    break;
+                }
+
+            }
+        }
+
+
+
+    }
+
+    public void OtherTowerShot(int towerId)
+    {
+        returnTowerWithThisClientId(towerId).GetComponent<Tower>().Shoot();
+    }
+
+    public GameObject CreateNewObject(int id, int type, Vector2 position, float zRot)
+    {
+
+        GameObject newObject;
+
+        if (type == 0)
+        {
+            newObject = addTower();
+
+        }
+        else if (type == 1)
+        {
+            newObject = addMinion();
+
+        }
+        else
+        {
+            newObject = new GameObject();
+        }
+
+        newObject.GetComponent<Controllable>().setType(type);
+        newObject.transform.position = new Vector3(position.x, position.y, newObject.transform.position.z);
+        newObject.transform.rotation = Quaternion.Euler(0, 0, zRot);
+        newObject.GetComponent<Controllable>().setId(id);
+
+        //if the id of this player in the game is our id the this is us
+        if (id == Client.instance.myId)
+        {
+            setPlayer(newObject);
+        }
+
+        return newObject;
+
     }
 
     private void sendPlayerUpdate()
@@ -170,6 +234,17 @@ public class GameManager : MonoBehaviour
             selectedTower.GetComponent<Tower>().AddMessage(towerMessages[i]);
         }
     }
+
+    private GameObject returnObjectWithThisClientId(int clientId)
+    {
+        GameObject returnObj = returnMinionWithThisClientId(clientId);
+        if (returnObj == null)
+        {
+            returnObj = returnTowerWithThisClientId(clientId);
+        }
+        return returnObj;
+    }
+
     private GameObject returnMinionWithThisClientId(int clientId)
     {
         foreach(GameObject minion in minions)
@@ -213,8 +288,7 @@ public class GameManager : MonoBehaviour
 
     public void spawnAsMinion()
     {
-        GameObject minion = addMinion();
-        setPlayer(minion);
+        ClientSend.AttemptMinionCreation(true);
     }
 
 }

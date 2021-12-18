@@ -51,7 +51,7 @@ public class UIManager : MonoBehaviour
             if (Input.GetMouseButtonDown(0))
             {
                 //send mouse pos and tower type to server to try and spawn
-                ClientSend.AttemptTowerCreation(Input.mousePosition);
+                ClientSend.AttemptTowerCreation(Input.mousePosition, false);
             }
         }
     }
@@ -89,7 +89,7 @@ public class UIManager : MonoBehaviour
     public void minionSelected()
     {
 
-        ClientSend.AttemptMinionCreation();
+        ClientSend.AttemptMinionCreation(false);
         afterServerResponse.SetActive(false);
     }
 }

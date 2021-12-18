@@ -10,7 +10,9 @@ public enum ServerPackets
     joinGameData,
     timePing,
     sendWorldUpdate,
-    newPlayerJoined
+    newPlayerJoined,
+    towerShot,
+    playerDied
 }
 
 /// <summary>Sent from client to server.</summary>
@@ -22,7 +24,8 @@ public enum ClientPackets
     attemptTowerCreation,
     timePing,
     minionUpdate,
-    towerUpdate
+    towerUpdate,
+    shotBullet
 
 }
 

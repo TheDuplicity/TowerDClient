@@ -13,6 +13,8 @@ public class NetworkManager : MonoBehaviour
     private Queue<float> roundTripTimes;
     private Dictionary<int, float> roundTripTimers;
 
+    public float messageSendRateLimit { get; private set; }
+
     public static NetworkManager instance;
     // Start is called before the first frame update
     private void Awake()
@@ -29,7 +31,8 @@ public class NetworkManager : MonoBehaviour
     }
     void Start()
     {
-
+        //limit number of messages sent to 0.05 per second ie 50ms
+        messageSendRateLimit = 0.05f;
         serverTimeoutTimer = 0;
         alivePingTimer = 0;
         roundTripTimers = new Dictionary<int, float>();

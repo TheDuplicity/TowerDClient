@@ -27,10 +27,18 @@ public class Tower : Controllable
     // Update is called once per frame
     void Update()
     {
+        updateTimer(ref reloadTimer);
+        updateTimer(ref wallSpawnCooldown);
+        updateTimer(ref shootCooldown);
+        if (numBullets <= 0)
+        {
+            if (reloadTimer <= 0)
+            {
+                Reload();
+            }
+        }
+
         if (playerControlled) {
-            updateTimer(ref reloadTimer);
-            updateTimer(ref wallSpawnCooldown);
-            updateTimer(ref shootCooldown);
             handlePlayerControls();
         }
         else
@@ -59,6 +67,7 @@ public class Tower : Controllable
 
     override public void handlePlayerControls()
     {
+
         if (Input.GetKey(KeyCode.Q))
         {
             rotate(false);
@@ -69,22 +78,12 @@ public class Tower : Controllable
         }
         if (Input.GetMouseButtonDown(0))
         {
-            if (reloadTimer <= 0)
-            {
-                
-                if (numBullets > 0) {
+            if (numBullets > 0) {
+                if (reloadTimer <= 0) {
                     if (shootCooldown <= 0) {
                         Shoot();
                     }
                 }
-                else
-                {
-                    Reload();
-                }
-            }
-            else
-            {
-                Debug.Log($"still reloading for {reloadTimer} seconds.");
             }
 
         } else if (Input.GetMouseButtonDown(1))
@@ -114,9 +113,25 @@ public class Tower : Controllable
         }
 
     }
-
-    private void Shoot()
+    public void die()
     {
+        Destroy(gameObject);
+    }
+    public void Shoot()
+    {
+        if (reloadTimer > 0)
+        {
+            return;
+        }
+        if (numBullets <= 0)
+        {
+            return;
+        }
+        if (shootCooldown > 0)
+        {
+            return;
+        }
+        ClientSend.ShotBullet();
         //spawn bullet with initial values
         shootCooldown = 0.35f;
         numBullets--;
@@ -124,24 +139,24 @@ public class Tower : Controllable
 
         //Bullet createBullet = bulletPref.GetComponent<Bullet>();
         GameObject createBullet = Instantiate(bulletPref);
-        createBullet.GetComponent<Bullet>().createBulletData(6, 4, 25,transform.position, transform.rotation);
+        createBullet.GetComponent<Bullet>().createBulletData(9, 6, 25,transform.position, transform.rotation);
     }
 
-    private void SpawnWallAhead()
+    public void SpawnWallAhead()
     {
         //spawn wall at mouse position if in range of tower
         wallSpawnCooldown = 3.0f;
         Debug.Log("spawn wall");
     }
 
-    private void Reload()
+    public void Reload()
     {
         reloadTimer = 2.0f;
         numBullets = maxBullets;
         Debug.Log("reloading");
     }
 
-    private void rotate(bool rotateClockwise)
+    public void rotate(bool rotateClockwise)
     {
         if (rotateClockwise) {
             transform.rotation *= Quaternion.Euler(0,0,-90 * Time.deltaTime);

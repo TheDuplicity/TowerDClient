@@ -232,7 +232,9 @@ public class Client : MonoBehaviour
             { (int)ServerPackets.joinGameData, ClientHandle.JoinGameData},
             { (int)ServerPackets.timePing, ClientHandle.TimePing},
             { (int)ServerPackets.sendWorldUpdate, ClientHandle.handleWorldUpdate},
-            { (int)ServerPackets.newPlayerJoined, }
+            { (int)ServerPackets.newPlayerJoined, ClientHandle.AddNewPlayer},
+            { (int)ServerPackets.towerShot, ClientHandle.TowerShot},
+            { (int)ServerPackets.playerDied, ClientHandle.PlayerDied}
         };
         Debug.Log("initialised packets");
     }

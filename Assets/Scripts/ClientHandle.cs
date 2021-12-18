@@ -97,19 +97,33 @@ public class ClientHandle : MonoBehaviour
 
     public static void AddNewPlayer(Packet packet)
     {
-        //get tower type, then initialise based off type
-        int towerType = packet.ReadInt();
-        if (towerType == 0)
-        {
-            //gamemanager.spawntower(initialising variables)
-        } else if (towerType == 1)
-        {
 
-        }
-        else
-        {
-            Debug.Log("tower type of new connecting player was neither tower nor minion");
-        }
+        int id = packet.ReadInt();
+        int type = packet.ReadInt();
+        float zRot = packet.ReadFloat();
+        Vector2 pos = new Vector2(packet.ReadFloat(), packet.ReadFloat());
+
+        GameManager.Instance.CreateNewObject(id, type, pos, zRot);
     }
+    public static void TowerShot(Packet packet)
+    {
+
+        int shootingTowerId = packet.ReadInt();
+        GameManager.Instance.OtherTowerShot(shootingTowerId);
+        // Debug.Log($"received ping for timer id: {timerID}");
+        //received response, stop timer and store it in network managers array
+        
+    }
+    public static void PlayerDied(Packet packet)
+    {
+
+        int deadPlayerId = packet.ReadInt();
+        GameManager.Instance.KillObject(deadPlayerId);
+        // Debug.Log($"received ping for timer id: {timerID}");
+        //received response, stop timer and store it in network managers array
+
+    }
+
+
 
 }
