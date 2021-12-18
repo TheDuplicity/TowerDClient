@@ -52,6 +52,30 @@ public class ClientSend : MonoBehaviour
             SendTCPData(packet);
         }
     }
+
+    public static void SendMinionUpdate(GameManager.minionDefaultMessage message)
+    {
+
+
+        using (Packet packet = new Packet((int)ClientPackets.minionUpdate))
+        {
+            packet.Write(message.time);
+            packet.Write(message.position.x);
+            packet.Write(message.position.y);
+            SendTCPData(packet);
+        }
+    }
+    public static void SendTowerUpdate(GameManager.towerDefaultMessage message)
+    {
+
+        using (Packet packet = new Packet((int)ClientPackets.towerUpdate))
+        {
+            packet.Write(message.time);
+            packet.Write(message.zRotation);
+            SendTCPData(packet);
+        }
+    }
+
     public static void TimePing(int timerId)
     {
         NetworkManager.instance.serverTimeoutTimer = 0;

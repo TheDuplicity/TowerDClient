@@ -5,30 +5,20 @@ using UnityEngine;
 public class Controllable : MonoBehaviour
 {
     public bool playerControlled;
-    private float maxMessages;
-    private int id;
-    public struct message
-    {
-        int id;
-        Vector2 position;
-        float rotation;
-    }
 
-    Queue<message> messages;
+    private int id;
+    private int type;
+
     // Start is called before the first frame update
     void Start()
     {
         playerControlled = false;
-        maxMessages = 3;
-        messages = new Queue<message>();
+
     }
 
     private void Update()
     {
-        while (messages.Count > maxMessages)
-        {
-            messages.Dequeue();
-        }
+
     }
 
     public void setId(int setId)
@@ -39,6 +29,16 @@ public class Controllable : MonoBehaviour
     public int getId()
     {
         return id;
+    }
+
+    public void setType(int setType)
+    {
+        type = setType;
+    }
+
+    public int getType()
+    {
+        return type;
     }
 
 

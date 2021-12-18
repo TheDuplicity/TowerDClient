@@ -230,7 +230,9 @@ public class Client : MonoBehaviour
             { (int)ServerPackets.welcome, ClientHandle.Welcome},
             { (int)ServerPackets.serverAlive, ClientHandle.ServerAlive},
             { (int)ServerPackets.joinGameData, ClientHandle.JoinGameData},
-            { (int)ServerPackets.timePing, ClientHandle.TimePing}
+            { (int)ServerPackets.timePing, ClientHandle.TimePing},
+            { (int)ServerPackets.sendWorldUpdate, ClientHandle.handleWorldUpdate},
+            { (int)ServerPackets.newPlayerJoined, }
         };
         Debug.Log("initialised packets");
     }

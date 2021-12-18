@@ -4,6 +4,20 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
+
+    public struct minionDefaultMessage
+    {
+        public int clientId;
+        public Vector2 position;
+        public float time;
+    }
+    public struct towerDefaultMessage
+    {
+        public int clientId;
+        public float zRotation;
+        public float time;
+    }
+
     List<GameObject> minions;
     List<GameObject> towers;
     private GameObject tileSet;
@@ -16,6 +30,8 @@ public class GameManager : MonoBehaviour
     public int minionScore;
     public int towerScore;
 
+
+    public float sendUpdateTimer;
 
     public float gameTime { get; private set; }
     public static GameManager Instance { get; private set; }
@@ -37,6 +53,8 @@ public class GameManager : MonoBehaviour
     {
 
         player = null;
+
+        sendUpdateTimer = 0;
 
         minions = new List<GameObject>();
         towers = new List<GameObject>();
@@ -75,6 +93,7 @@ public class GameManager : MonoBehaviour
             {
                 setPlayer(newObject);
             }
+            newObject.GetComponent<Controllable>().setType(instantiateLevelData.types[i]);
             newObject.transform.position = new Vector3(instantiateLevelData.positions[i].x, instantiateLevelData.positions[i].y, newObject.transform.position.z);
             newObject.transform.rotation = Quaternion.Euler(0, 0, instantiateLevelData.zRotations[i]);
             newObject.GetComponent<Controllable>().setId(instantiateLevelData.ids[i]);
@@ -86,7 +105,14 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        sendUpdateTimer += Time.deltaTime;
+        //send update every 50 ms
+        if (sendUpdateTimer > 0.05)
+        {
+            sendUpdateTimer = 0;
+            sendPlayerUpdate();
 
+        }
         gameTime += Time.deltaTime;
 
         UIManager.instance.minionScoreText.text = minionScore.ToString();
@@ -97,6 +123,74 @@ public class GameManager : MonoBehaviour
         if (Camera.main != null && player != null) {
             Camera.main.transform.position = new Vector3(player.transform.position.x, player.transform.position.y, Camera.main.transform.position.z);
         }
+    }
+
+    private void sendPlayerUpdate()
+    {
+        if (player.GetComponent<Controllable>().getType() == 0)
+        {
+            towerDefaultMessage message;
+            message.time = gameTime;
+            message.clientId = player.GetComponent<Controllable>().getId();
+            message.zRotation = player.transform.rotation.eulerAngles.z;
+            ClientSend.SendTowerUpdate(message);
+        }
+        else
+        {
+            minionDefaultMessage message;
+            message.time = gameTime;
+            message.clientId = player.GetComponent<Controllable>().getId();
+            message.position = new Vector2(player.transform.position.x, player.transform.position.y);
+            ClientSend.SendMinionUpdate(message);
+        }
+    }
+
+    public void sendWorldUpdateToObjects(int setMinionScore, int setTowerScore, minionDefaultMessage[] minionMessages, towerDefaultMessage[] towerMessages)
+    {
+        minionScore = setMinionScore;
+        towerScore = setTowerScore;
+        for (int i = 0; i < minionMessages.Length; i++)
+        {
+            int id = minionMessages[i].clientId;
+            GameObject selectedMinion = returnMinionWithThisClientId(id);
+            if (selectedMinion == null)
+            {
+                continue;
+            }
+            selectedMinion.GetComponent<Minion>().AddMessage(minionMessages[i]);
+        }
+        for (int i = 0; i < towerMessages.Length; i++)
+        {
+            int id = towerMessages[i].clientId;
+            GameObject selectedTower = returnTowerWithThisClientId(id);
+            if (selectedTower == null)
+            {
+                continue;
+            }
+            selectedTower.GetComponent<Tower>().AddMessage(towerMessages[i]);
+        }
+    }
+    private GameObject returnMinionWithThisClientId(int clientId)
+    {
+        foreach(GameObject minion in minions)
+        {
+            if (minion.GetComponent<Controllable>().getId() == clientId)
+            {
+                return minion;
+            }
+        }
+        return null;
+    }
+    private GameObject returnTowerWithThisClientId(int clientId)
+    {
+        foreach (GameObject tower in towers)
+        {
+            if (tower.GetComponent<Controllable>().getId() == clientId)
+            {
+                return tower;
+            }
+        }
+        return null;
     }
     private void setPlayer(GameObject newPlayer)
     {

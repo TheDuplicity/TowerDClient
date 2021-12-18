@@ -62,13 +62,54 @@ public class ClientHandle : MonoBehaviour
         SceneManager.LoadScene(1);
     }
 
+    public static void handleWorldUpdate(Packet packet)
+    {
+        float gameTime = packet.ReadFloat();
+        int minionScore = packet.ReadInt();
+        int towerScore = packet.ReadInt();
+        int numMinions = packet.ReadInt();
+        GameManager.minionDefaultMessage[] minionMessages = new GameManager.minionDefaultMessage[numMinions];
+        for (int i = 0; i < numMinions; i++)
+        {
+            minionMessages[i].clientId = packet.ReadInt();
+            minionMessages[i].position = new Vector2(packet.ReadFloat(), packet.ReadFloat());
+            minionMessages[i].time = gameTime;
+        }       
+        int numTowers = packet.ReadInt();
+        GameManager.towerDefaultMessage[] towerMessages = new GameManager.towerDefaultMessage[numTowers];
+        for (int i = 0; i < numTowers; i++)
+        {
+            towerMessages[i].clientId = packet.ReadInt();
+            towerMessages[i].zRotation = packet.ReadFloat();
+            towerMessages[i].time = gameTime;
+        }
+        GameManager.Instance.sendWorldUpdateToObjects(minionScore, towerScore, minionMessages, towerMessages);
+    }
+
     public static void TimePing(Packet packet)
     {
 
         int timerID = packet.ReadInt();
-        Debug.Log($"received ping for timer id: {timerID}");
+       // Debug.Log($"received ping for timer id: {timerID}");
         //received response, stop timer and store it in network managers array
         NetworkManager.instance.addTimeToRoundTripTimesList(timerID);
+    }
+
+    public static void AddNewPlayer(Packet packet)
+    {
+        //get tower type, then initialise based off type
+        int towerType = packet.ReadInt();
+        if (towerType == 0)
+        {
+            //gamemanager.spawntower(initialising variables)
+        } else if (towerType == 1)
+        {
+
+        }
+        else
+        {
+            Debug.Log("tower type of new connecting player was neither tower nor minion");
+        }
     }
 
 }

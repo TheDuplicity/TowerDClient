@@ -3,15 +3,20 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
+
 public class Minion : Controllable
 {
     [SerializeField] private float speed;
     [SerializeField] private float health;
+    private List<GameManager.minionDefaultMessage> messages;
+    private int maxMessagesStored;
     // Start is called before the first frame update
     void Start()
     {
-       // speed = 1;
-       // health = 100;
+        // speed = 1;
+        // health = 100;
+        messages = new List<GameManager.minionDefaultMessage>();
+        maxMessagesStored = 3;
     }
 
     // Update is called once per frame
@@ -26,6 +31,24 @@ public class Minion : Controllable
         {
             updateFromSimulation();
         }
+    }
+
+    public void AddMessage(GameManager.minionDefaultMessage message)
+    {
+        while (messages.Count >= maxMessagesStored)
+        {
+            int oldestTimeId = 0;
+            for (int i = 0; i < messages.Count; i++)
+            {
+                if (messages[i].time < messages[oldestTimeId].time)
+                {
+                    oldestTimeId = i;
+                }
+            }
+            messages.RemoveAt(oldestTimeId);
+        }
+        messages.Add(message);
+        messages.Sort((mes1, mes2) => mes1.time.CompareTo(mes2.time));
     }
 
     override public void handlePlayerControls()
@@ -55,6 +78,10 @@ public class Minion : Controllable
 
     private void updateFromSimulation()
     {
+        if (messages.Count == maxMessagesStored)
+        {
+           transform.position = new Vector3(messages[maxMessagesStored - 1].position.x, messages[maxMessagesStored - 1].position.y, transform.position.z);
+        }
 
     }
     private void OnTriggerEnter2D(Collider2D collision)

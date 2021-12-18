@@ -521,7 +521,7 @@ ScriptsOnlyBuild:
     className: VerticalLayoutGroup
   - hash:
       serializedVersion: 2
-      Hash: 921a0a4d20edcfe2a4617c8c491ff3cf
+      Hash: 95b4b0344028e3233dc4a29705b6d005
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: GameManager
