@@ -31,7 +31,7 @@ public class ClientHandle : MonoBehaviour
     public static void ServerAlive(Packet packet)
     {
         bool alive = packet.ReadBool();
-        Debug.Log($"server alive? :- {alive}");
+      //  Debug.Log($"server alive? :- {alive}");
         if (alive)
         {
             NetworkManager.instance.serverTimeoutTimer = 0;
@@ -65,6 +65,13 @@ public class ClientHandle : MonoBehaviour
     public static void handleWorldUpdate(Packet packet)
     {
         float gameTime = packet.ReadFloat();
+        if (GameManager.Instance.updateTimerWithOffsetTime)
+        {
+            GameManager.Instance.updateTimerWithOffsetTime = false;
+            GameManager.Instance.updateTimerInGameLoop = true;
+            GameManager.Instance.setGameTime( gameTime + GameManager.Instance.offsetTime);
+        }
+        GameManager.Instance.latestServerTime = gameTime;
         int minionScore = packet.ReadInt();
         int towerScore = packet.ReadInt();
         int numMinions = packet.ReadInt();

@@ -29,9 +29,16 @@ public class GameManager : MonoBehaviour
 
     public int minionScore;
     public int towerScore;
-
+    public float offsetTime;
 
     public float sendUpdateTimer;
+
+    private int pingTimeCount;
+    private float pingTimeTimer;
+    public bool updateTimerWithOffsetTime;
+    public bool updateTimerInGameLoop;
+
+    public float latestServerTime;
 
     public float gameTime { get; private set; }
     public static GameManager Instance { get; private set; }
@@ -51,7 +58,9 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-
+        pingTimeCount = 3;
+        updateTimerWithOffsetTime = false;
+        updateTimerInGameLoop = false;
         player = null;
 
         sendUpdateTimer = 0;
@@ -66,6 +75,7 @@ public class GameManager : MonoBehaviour
 
         DataFromMenuToLevel instantiateLevelData = FindObjectOfType<DataFromMenuToLevel>();
 
+        offsetTime = NetworkManager.instance.calculatenetWorkAverageHalfTripTime();
         gameTime = instantiateLevelData.serverGameTime + NetworkManager.instance.calculatenetWorkAverageHalfTripTime();
 
 
@@ -80,9 +90,15 @@ public class GameManager : MonoBehaviour
 
     }
 
+    public void setGameTime(float newTime)
+    {
+        gameTime = newTime;
+    }
+
     // Update is called once per frame
     void Update()
     {
+        getBetterLatencyVal();
         sendUpdateTimer += Time.deltaTime;
         //send update every 50 ms
         if (sendUpdateTimer > NetworkManager.instance.messageSendRateLimit)
@@ -92,18 +108,40 @@ public class GameManager : MonoBehaviour
                 sendPlayerUpdate();
             }
         }
+
+
+
+
         gameTime += Time.deltaTime;
+
+
+        // Debug.Log($"server time: {latestServerTime}, game time {gameTime}, offset {offsetTime}, difference in time: {gameTime - latestServerTime}");
 
         UIManager.instance.minionScoreText.text = minionScore.ToString();
         UIManager.instance.TowerScoreText.text = towerScore.ToString();
         UIManager.instance.gameTimeText.text = gameTime.ToString(".0#");
-
-
         if (Camera.main != null && player != null) {
             Camera.main.transform.position = new Vector3(player.transform.position.x, player.transform.position.y, Camera.main.transform.position.z);
         }
     }
 
+    private void getBetterLatencyVal()
+    {
+        if (pingTimeCount > 0)
+        {
+            pingTimeTimer += Time.deltaTime;
+            if (pingTimeTimer > 2)
+            {
+                pingTimeCount--;
+                NetworkManager.instance.pingServerForRoundTripTime(3);
+                if (pingTimeCount == 0)
+                {
+                    offsetTime = NetworkManager.instance.calculatenetWorkAverageHalfTripTime();
+                    updateTimerWithOffsetTime = true;
+                }
+            }
+        }
+    }
     public void KillObject(int objectId)
     {
         GameObject killObject = returnObjectWithThisClientId(objectId);
@@ -211,6 +249,7 @@ public class GameManager : MonoBehaviour
 
     public void sendWorldUpdateToObjects(int setMinionScore, int setTowerScore, minionDefaultMessage[] minionMessages, towerDefaultMessage[] towerMessages)
     {
+
         minionScore = setMinionScore;
         towerScore = setTowerScore;
         for (int i = 0; i < minionMessages.Length; i++)
@@ -221,6 +260,7 @@ public class GameManager : MonoBehaviour
             {
                 continue;
             }
+
             selectedMinion.GetComponent<Minion>().AddMessage(minionMessages[i]);
         }
         for (int i = 0; i < towerMessages.Length; i++)
